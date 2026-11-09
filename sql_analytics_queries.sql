@@ -1,4 +1,4 @@
--- ============================================================================
+- ============================================================================
 -- TELCO CUSTOMER CHURN: COMPLETE SQL ANALYTICS & DASHBOARD QUERIES
 -- Database Dialect: Google BigQuery
 -- Project/Dataset: telco-customer-churn-513509.telco
@@ -80,17 +80,17 @@ WHERE row_num = 1;
 -- 1.1 Executive Summary KPIs (Total Customers, Total Churn, Churn Rate %, Revenue Lost)
 SELECT 
     COUNT(customerID) AS total_customers,
-    COUNTIF(Churn = 'Yes') AS total_churn,
-    ROUND(COUNTIF(Churn = 'Yes') * 100.0 / COUNT(customerID), 1) AS churn_rate_pct,
-    ROUND(SUM(CASE WHEN Churn = 'Yes' THEN MonthlyCharges ELSE 0 END), 2) AS monthly_revenue_lost
+    COUNTIF(Churn = TRUE) AS total_churn,
+    ROUND(COUNTIF(Churn = TRUE) * 100.0 / COUNT(customerID), 1) AS churn_rate_pct,
+    ROUND(SUM(CASE WHEN Churn = TRUE THEN MonthlyCharges ELSE 0 END), 2) AS monthly_revenue_lost
 FROM `telco-customer-churn-513509.telco.telco_cleaned_data`;
 
 -- 1.2 Churn Rate by Tenure Cohorts (Line Chart)
 SELECT 
     TenureGroup,
     COUNT(customerID) AS total_customers,
-    COUNTIF(Churn = 'Yes') AS churned_customers,
-    ROUND(COUNTIF(Churn = 'Yes') * 100.0 / COUNT(customerID), 1) AS churn_rate_pct
+    COUNTIF(Churn = TRUE) AS churned_customers,
+    ROUND(COUNTIF(Churn = TRUE) * 100.0 / COUNT(customerID), 1) AS churn_rate_pct
 FROM `telco-customer-churn-513509.telco.telco_cleaned_data`
 GROUP BY TenureGroup
 ORDER BY 
@@ -105,19 +105,19 @@ ORDER BY
 SELECT 
     Contract,
     COUNT(customerID) AS total_customers,
-    COUNTIF(Churn = 'Yes') AS churned_customers,
-    ROUND(COUNTIF(Churn = 'Yes') * 100.0 / COUNT(customerID), 1) AS churn_rate_pct
+    COUNTIF(Churn = TRUE) AS churned_customers,
+    ROUND(COUNTIF(Churn = TRUE) * 100.0 / COUNT(customerID), 1) AS churn_rate_pct
 FROM `telco-customer-churn-513509.telco.telco_cleaned_data`
 GROUP BY Contract
 ORDER BY churn_rate_pct DESC;
 
 -- 1.4 Demographic Churn (Senior Status & Relationship Status)
 SELECT 
-    CASE WHEN SeniorCitizen = '1' THEN 'Senior Citizen' ELSE 'Non-Senior' END AS senior_status,
-    CASE WHEN Partner = 'Yes' THEN 'Married' ELSE 'Single' END AS relationship_status,
+    CASE WHEN SeniorCitizen = 1 THEN 'Senior Citizen' ELSE 'Non-Senior' END AS senior_status,
+    CASE WHEN Partner = TRUE THEN 'Married' ELSE 'Single' END AS relationship_status,
     COUNT(customerID) AS total_customers,
-    COUNTIF(Churn = 'Yes') AS churned_customers,
-    ROUND(COUNTIF(Churn = 'Yes') * 100.0 / COUNT(customerID), 1) AS churn_rate_pct
+    COUNTIF(Churn = TRUE) AS churned_customers,
+    ROUND(COUNTIF(Churn = TRUE) * 100.0 / COUNT(customerID), 1) AS churn_rate_pct
 FROM `telco-customer-churn-513509.telco.telco_cleaned_data`
 GROUP BY SeniorCitizen, Partner
 ORDER BY churn_rate_pct DESC;
@@ -129,18 +129,18 @@ ORDER BY churn_rate_pct DESC;
 
 -- 2.1 Service & Financial KPIs (High-Risk Month-to-Month Active, Avg Charges, MRR at Risk)
 SELECT 
-    COUNTIF(Contract = 'Month-to-month' AND Churn = 'No') AS month_to_month_active,
-    ROUND(AVG(CASE WHEN Churn = 'Yes' THEN MonthlyCharges END), 2) AS avg_charge_churners,
-    ROUND(AVG(CASE WHEN Churn = 'No' THEN MonthlyCharges END), 2) AS avg_charge_loyal,
-    ROUND(SUM(CASE WHEN Contract = 'Month-to-month' AND Churn = 'No' THEN MonthlyCharges END), 2) AS active_mrr_at_risk
+    COUNTIF(Contract = 'Month-to-month' AND Churn = FALSE) AS month_to_month_active,
+    ROUND(AVG(CASE WHEN Churn = TRUE THEN MonthlyCharges END), 2) AS avg_charge_churners,
+    ROUND(AVG(CASE WHEN Churn = FALSE THEN MonthlyCharges END), 2) AS avg_charge_loyal,
+    ROUND(SUM(CASE WHEN Contract = 'Month-to-month' AND Churn = FALSE THEN MonthlyCharges END), 2) AS active_mrr_at_risk
 FROM `telco-customer-churn-513509.telco.telco_cleaned_data`;
 
 -- 2.2 Churn Rate by Payment Method
 SELECT 
     PaymentMethod,
     COUNT(customerID) AS total_customers,
-    COUNTIF(Churn = 'Yes') AS churned_customers,
-    ROUND(COUNTIF(Churn = 'Yes') * 100.0 / COUNT(customerID), 1) AS churn_rate_pct
+    COUNTIF(Churn = TRUE) AS churned_customers,
+    ROUND(COUNTIF(Churn = TRUE) * 100.0 / COUNT(customerID), 1) AS churn_rate_pct
 FROM `telco-customer-churn-513509.telco.telco_cleaned_data`
 GROUP BY PaymentMethod
 ORDER BY churn_rate_pct DESC;
@@ -149,8 +149,8 @@ ORDER BY churn_rate_pct DESC;
 SELECT 
     InternetService,
     COUNT(customerID) AS total_customers,
-    COUNTIF(Churn = 'Yes') AS churned_customers,
-    ROUND(COUNTIF(Churn = 'Yes') * 100.0 / COUNT(customerID), 1) AS churn_rate_pct
+    COUNTIF(Churn = TRUE) AS churned_customers,
+    ROUND(COUNTIF(Churn = TRUE) * 100.0 / COUNT(customerID), 1) AS churn_rate_pct
 FROM `telco-customer-churn-513509.telco.telco_cleaned_data`
 GROUP BY InternetService
 ORDER BY churn_rate_pct DESC;
@@ -160,8 +160,8 @@ SELECT
     CASE WHEN TechSupport = 'Yes' THEN 'With Tech Support' ELSE 'No Tech Support' END AS tech_support_status,
     CASE WHEN OnlineSecurity = 'Yes' THEN 'With Security' ELSE 'No Security' END AS security_status,
     COUNT(customerID) AS total_customers,
-    COUNTIF(Churn = 'Yes') AS churned_customers,
-    ROUND(COUNTIF(Churn = 'Yes') * 100.0 / COUNT(customerID), 1) AS churn_rate_pct
+    COUNTIF(Churn = TRUE) AS churned_customers,
+    ROUND(COUNTIF(Churn = TRUE) * 100.0 / COUNT(customerID), 1) AS churn_rate_pct
 FROM `telco-customer-churn-513509.telco.telco_cleaned_data`
 GROUP BY tech_support_status, security_status
 ORDER BY churn_rate_pct DESC;
